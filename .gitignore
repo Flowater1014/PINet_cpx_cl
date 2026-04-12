@@ -1,0 +1,35 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+.vscode/
+*.log
+*.pth
+*.pt
+
+# Dataset and experiment folders
+model_saved_pinet_compared*/
+pinet_dataset_compared_*/
+pinet_1600/
+datasets/
+save_dir/
+real_data/
+result_data_experiment/
+
+# Jupyter Notebook checkpoints and outputs
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional cache and lock files
+*.cache
+*.sqlite
+*.db
+
+# PyTorch Lightning / experiment artifacts
+lightning_logs/
+checkpoints/

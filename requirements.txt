@@ -1,0 +1,4 @@
+Python 3.8.10
+
+PyTorch version: 1.10.0+cu113
+
