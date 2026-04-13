@@ -18,7 +18,6 @@ real_data/
 result_data_experiment/
 
 # Jupyter Notebook checkpoints and outputs
-.ipynb_checkpoints/
 *.ipynb_checkpoints
 
 # OS files
@@ -33,3 +32,26 @@ Thumbs.db
 # PyTorch Lightning / experiment artifacts
 lightning_logs/
 checkpoints/
+
+# Python virtual environments
+venv/
+env/
+.venv/
+*.env
+
+# Build and distribution directories
+build/
+dist/
+*.egg-info/
+__pycache__/
+
+# IDE specific files
+.idea/
+*.swp
+*.swo
+*~
+
+# System files
+*.bak
+*.tmp
+temp/

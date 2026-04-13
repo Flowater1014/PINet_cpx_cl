@@ -1,64 +1,120 @@
-# PINet_cpx_cl
+# PINet Complex Reconstruction (PINet_cpx_cl)
 
-本项目是一个基于 PyTorch 的 PINet 实验代码仓库，包含模型定义、数据集处理、损失函数和训练/测试相关脚本。
+A PyTorch implementation of PINet (Phase Imaging Network) for complex-valued data reconstruction. This repository contains model definitions, dataset processing, loss functions, and training/testing scripts for deep learning-based phase retrieval and complex signal recovery.
 
-## 目录说明
+## Features
 
-- `src/`：核心代码目录，包含模型、数据、损失和工具函数
-- `requirements.txt`：项目依赖
-- `notebooks/`：实验和验证 Notebook
-- `datasets/`：原始/处理后数据集（不建议上传至 GitHub）
-- `real_data/`：真实数据集文件（不建议上传至 GitHub）
-- `save_dir/`：模型权重和训练结果（不建议上传至 GitHub）
-- `result_data_experiment/`：实验结果数据（不建议上传至 GitHub）
+- Complex-valued neural network layers and functions
+- Custom dataset loaders for complex data
+- Training and evaluation pipelines
+- Jupyter notebooks for experimentation and visualization
 
-## 整理建议
+## Project Structure
 
-本仓库中较大的实验数据、模型权重、结果文件不建议直接上传到 GitHub，已通过 `.gitignore` 忽略以下类型内容：
-
-- `datasets/`
-- `save_dir/`
-- `model_saved_pinet_compared*/`
-- `pinet_dataset_compared*/`
-- `pinet_1600/`
-- `real_data/`
-- `result_data_experiment/`
-- `*.pth` / `*.pt`
-
-如果需要共享模型或数据，建议：
-
-- 使用云存储或第三方下载链接
-- 在 README 中写明下载方式
-- 保留一个小型示例数据集作为演示
-
-## 使用说明
-
-### 1. 初始化 Git 仓库
-
-```bash
-git init
-git add .
-git commit -m "Initial project structure"
+```
+PINet_cpx_cl/
+├── src/                    # Core source code
+│   ├── __init__.py
+│   ├── complexFunctions.py # Complex number operations
+│   ├── complexLayers.py    # Complex-valued neural layers
+│   ├── model.py           # PINet model definition
+│   ├── mydataset.py       # Custom dataset classes
+│   ├── myloss.py          # Loss functions for complex data
+│   └── utilities.py       # Utility functions
+├── notebooks/             # Jupyter notebooks for experiments
+├── requirements.txt       # Python dependencies
+├── README.md             # This file
+└── .gitignore            # Git ignore rules
 ```
 
-### 2. 安装依赖
+**Note**: The following directories contain large datasets, model weights, and experimental results which are excluded from version control (see `.gitignore`):
 
-```bash
-pip install -r requirements.txt
+- `datasets/` - Raw and processed datasets
+- `real_data/` - Real-world measurement data  
+- `save_dir/` - Trained model checkpoints
+- `result_data_experiment/` - Experiment results
+- `model_saved_pinet_compared*/` - Model comparison results
+- `pinet_dataset_compared*/` - Dataset comparison results
+- `pinet_1600/` - Specific dataset variant
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Flowater1014/PINet_cpx_cl.git
+   cd PINet_cpx_cl
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   
+   **Note**: The `requirements.txt` currently specifies Python 3.8.10 and PyTorch 1.10.0+cu113. For a more complete dependency list, you may need to install:
+   ```bash
+   pip install torch torchvision numpy matplotlib scipy jupyter
+   ```
+
+## Usage
+
+### Training
+
+1. Prepare your data in the appropriate format (see `src/mydataset.py` for expected structure)
+2. Modify training parameters in the relevant scripts or notebooks
+3. Run training:
+   ```python
+   # Example training command (adjust based on your setup)
+   python -m src.train  # If a training script exists
+   ```
+   
+   Alternatively, use the provided Jupyter notebooks in `notebooks/` for experimentation.
+
+### Evaluation
+
+Load a trained model and run inference:
+```python
+import torch
+from src.model import PINet
+
+model = PINet()
+model.load_state_dict(torch.load('path/to/checkpoint.pth'))
+# Perform inference...
 ```
 
-### 3. 运行训练或测试
+### Notebooks
 
-请根据 Notebook 或脚本中的注释运行相关命令。建议先使用小规模数据验证环境是否正常。
+The `notebooks/` directory contains Jupyter notebooks for:
+- Data exploration and visualization
+- Model training and validation
+- Result analysis and plotting
 
-## 目录优化建议
+## Data Management
 
-如果后续想进一步整理，可以考虑：
+Large files are excluded via `.gitignore`. To share data or models:
 
-- 把核心代码移动到 `src/` 或 `pinet/`
-- 把 Notebook 放到 `notebooks/`
-- 把下载数据脚本、数据说明放到 `data/`
+1. Use cloud storage (Google Drive, Dropbox, etc.) with shareable links
+2. Include download instructions in this README
+3. Consider providing a small example dataset for demonstration
 
-## 备注
+## Contributing
 
-当前项目中已有很多实验结果和数据目录，上传 GitHub 时只保留代码与说明文件可以使仓库更干净、更易维护。
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## License
+
+[Add your license here]
+
+## Citation
+
+If you use this code in your research, please cite:
+```bibtex
+[Add citation information]
+```
+
+## Acknowledgments
+
+[Add any acknowledgments here]
