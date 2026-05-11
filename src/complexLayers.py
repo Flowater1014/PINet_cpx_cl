@@ -13,9 +13,10 @@ import torch
 from torch.nn import Module, Parameter, init
 from torch.nn import Conv2d, Linear, BatchNorm1d, BatchNorm2d
 from torch.nn import ConvTranspose2d
-from complexFunctions import complex_relu, complex_max_pool2d, complex_avg_pool2d, complex_sigmoid
-from complexFunctions import complex_dropout, complex_dropout2d
-from complexFunctions import complex_upsample, complex_upsample2
+from src.complexFunctions import complex_relu, complex_max_pool2d, complex_avg_pool2d, complex_sigmoid
+from src.complexFunctions import complex_adaptive_avg_pool2d, complex_adaptive_max_pool2d
+from src.complexFunctions import complex_dropout, complex_dropout2d
+from src.complexFunctions import complex_upsample, complex_upsample2
 
 def apply_complex(fr, fi, input, dtype = torch.complex64):
     return (fr(input.real)-fi(input.imag)).type(dtype) \
@@ -76,6 +77,24 @@ class ComplexAvgPool2d(Module):
         return complex_avg_pool2d(input,kernel_size = self.kernel_size,
                                 stride = self.stride, padding = self.padding,
                                 ceil_mode = self.ceil_mode)
+
+class ComplexAdaptiveAvgPool2d(Module):
+    def __init__(self, output_size):
+        super(ComplexAdaptiveAvgPool2d, self).__init__()
+        self.output_size = output_size
+
+    def forward(self, input):
+        return complex_adaptive_avg_pool2d(input, self.output_size)
+
+
+class ComplexAdaptiveMaxPool2d(Module):
+    def __init__(self, output_size):
+        super(ComplexAdaptiveMaxPool2d, self).__init__()
+        self.output_size = output_size
+
+    def forward(self, input):
+        return complex_adaptive_max_pool2d(input, self.output_size)
+
 
 class ComplexUpsample(Module):
     def __init__(self, size=None, scale_factor=None, mode='nearest', 
