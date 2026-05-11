@@ -8,14 +8,18 @@ __pycache__/
 *.pth
 *.pt
 
-# Dataset and experiment folders
+# Dataset and experiment folders (只保留 .gitkeep)
 model_saved_pinet_compared*/
 pinet_dataset_compared_*/
 pinet_1600/
-datasets/
-save_dir/
-real_data/
-result_data_experiment/
+datasets/*
+save_dir/*
+real_data/*
+result_data_experiment/*
+!datasets/.gitkeep
+!save_dir/.gitkeep
+!real_data/.gitkeep
+!result_data_experiment/.gitkeep
 
 # Jupyter Notebook checkpoints and outputs
 *.ipynb_checkpoints
