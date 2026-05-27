@@ -69,6 +69,49 @@ class UNet_old(nn.Module):
         # x = self.up4(x, x1)
         logits = self.outc(x) + x_input
         return logits
+
+
+class UNet_4layer(nn.Module):
+    """四层上下采样的 U-Net，相比三层版多一层下采样/上采样。
+
+    结构:
+      inc(1→32) → Down(32→64) → Down(64→128) → Down(128→256) → Down(256→512)
+      → CBAM(512) → Up(512→256) → Up(256→128) → Up(128→64) → Up(64→32)
+      → OutConv(32→1) + 残差连接
+    """
+
+    def __init__(self, n_channels, n_classes, bilinear=False):
+        super().__init__()
+        self.n_channels = n_channels
+        self.n_classes = n_classes
+        self.bilinear = bilinear
+
+        self.inc = DoubleConv(n_channels, 32)
+        self.down1 = Down(32, 64)
+        self.down2 = Down(64, 128)
+        self.down3 = Down(128, 256)
+        self.down4 = Down(256, 512)
+        self.cbam_block = cbam_block(channel=512)
+        self.up1 = Up(512, 256, bilinear)
+        self.up2 = Up(256, 128, bilinear)
+        self.up3 = Up(128, 64, bilinear)
+        self.up4 = Up(64, 32, bilinear)
+        self.outc = OutConv(32, n_classes)
+
+    def forward(self, x):
+        x_input = x.clone()
+        x1 = self.inc(x)
+        x2 = self.down1(x1)
+        x3 = self.down2(x2)
+        x4 = self.down3(x3)
+        x5 = self.down4(x4)
+        x5 = self.cbam_block(x5)
+        x = self.up1(x5, x4)
+        x = self.up2(x, x3)
+        x = self.up3(x, x2)
+        x = self.up4(x, x1)
+        logits = self.outc(x) + x_input
+        return logits
     
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""

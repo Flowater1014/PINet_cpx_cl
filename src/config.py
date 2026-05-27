@@ -22,8 +22,8 @@ DATASETS_DIR = os.path.join(PROJECT_ROOT, "datasets")
 SAVE_DIR = os.path.join(PROJECT_ROOT, "save_dir")
 
 # 训练输入 / 输出目录（notebook 中按需覆盖）
-DATA_DIR = os.path.join(DATASETS_DIR, "synth_dataset_v1")
-OUTPUT_DIR = os.path.join(SAVE_DIR, "model_synth_dataset_v1")
+DATA_DIR = os.path.join(DATASETS_DIR, "pinet_dataset_compared_7")
+OUTPUT_DIR = os.path.join(SAVE_DIR, "model_saved_pinet_compared7")
 
 # ========================================
 #  物理参数
@@ -58,10 +58,8 @@ TRANSFORM = transforms.Compose([
 # ========================================
 #  模型参数
 # ========================================
-MODEL_TYPE = "v6"               # v6 / v7 / CICDNet
-FOLD_ITERS = 4                  # PINet 物理迭代次数
+FOLD_ITERS = 5                  # PINet 物理迭代次数
 CBAM_RATIO = 8                  # CBAM 注意力通道缩减比
-ALPHA = 0.5                     # v7 的去噪-物理投影融合权重
 
 # ========================================
 #  训练参数

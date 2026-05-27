@@ -7,9 +7,6 @@ from src.complexLayers import ComplexBatchNorm2d, ComplexConv2d, ComplexReLU, Co
 from src.complexLayers import ComplexConvTranspose2d
 from src.complexFunctions import complex_mul
 from src.utilities import *
-from src.CI_CDNet import CI_CDNet
-# from complex_uformer import ComplexUformer
-# from complex_uformer_without_timesteps import ComplexUformer_without_timesteps,ComplexUformer_without_timesteps_3layers
 
 
 # v6版本的PINet_cpx，采用了通道注意力机制和空间注意力机制的UNet
@@ -43,77 +40,8 @@ class PINet_cpx_v6(nn.Module):
         y_rec = torch.abs(self.ASM_forward(x, TF_hat))
             
         return x, y_rec
-    
-# v7版本的PINet_cpx，每次迭代采用不同的UNet，alpha = 1.0完全相信UNet，alpha = 0.0完全不用 U-Net，只做物理投影迭代。
-class PINet_cpx_v7(nn.Module):
-    def __init__(self, fold_iters=4, ratio=8, alpha=0.5):
-        super(PINet_cpx_v7, self).__init__()
 
-        self.fold_iters = fold_iters
-        self.alpha = alpha
-
-        self.denoisers = nn.ModuleList([
-            UNet_cpx_v4(1, 1, ratio) for _ in range(fold_iters)
-        ])
-
-    def ASM_forward(self, obj, TF):
-        objFT = torch.fft.fftshift(torch.fft.fft2(obj))
-        propfield = torch.fft.ifft2(torch.fft.ifftshift(objFT * TF))
-        return propfield
-
-    def ASM_backward(self, propfield, TF):
-        objFT = torch.fft.fftshift(torch.fft.fft2(propfield))
-        obj = torch.fft.ifft2(torch.fft.ifftshift(objFT * torch.conj(TF)))
-        return obj
-
-    def forward(self, y, TF_hat):
-        x = torch.ones_like(y, dtype=torch.complex64)
-
-        for i in range(self.fold_iters):
-            z_hat = self.ASM_forward(x, TF_hat)
-            z_new = y * torch.exp(1j * torch.angle(z_hat))
-            x_hat = self.ASM_backward(z_new, TF_hat)
-
-            x_denoised = self.denoisers[i](x_hat)
-            x = self.alpha * x_denoised + (1 - self.alpha) * x_hat
-
-        y_rec = torch.abs(self.ASM_forward(x, TF_hat))
-
-        return x, y_rec
-
-# v6版本的PINet_cpx，每次迭代采用不同的UNet，alpha = 1.0完全相信UNet，alpha = 0.0完全不用 U-Net，只做物理投影迭代。
-class PINet_cpx_CICDNet(nn.Module):
-    def __init__(self, fold_iters=4):
-        super(PINet_cpx_CICDNet, self).__init__()
-        
-        self.fold_iters = fold_iters
-        self.denoiser   = CI_CDNet()          # Complex UNet model
-
-    def ASM_forward(self, obj, TF):
-        objFT = torch.fft.fftshift(torch.fft.fft2(obj))
-        propfield = torch.fft.ifft2(torch.fft.ifftshift(objFT*TF))
-
-        return propfield
-
-    def ASM_backward(self, propfield, TF):
-        objFT = torch.fft.fftshift(torch.fft.fft2(propfield))
-        obj = torch.fft.ifft2(torch.fft.ifftshift(objFT*torch.conj(TF)))
-
-        return obj
-        
-    def forward(self, y, TF_hat):   
-        x = torch.ones_like(y)
-
-        for i in range(self.fold_iters):
-            z_hat = self.ASM_forward(x, TF_hat)
-            x_hat = self.ASM_backward(y * torch.exp(1j * torch.angle(z_hat)), TF_hat)
-            x = self.denoiser(x_hat)
-            # .detach()
-        y_rec = torch.abs(self.ASM_forward(x, TF_hat))
-            
-        return x, y_rec
-
-class UNet(nn.Module):
+(nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=False):
         super(UNet, self).__init__()
         self.n_channels = n_channels
@@ -147,6 +75,40 @@ class UNet(nn.Module):
         return logits
     
     
+class UNet(nn.Module):
+    def __init__(self, n_channels, n_classes, bilinear=False):
+        super(UNet, self).__init__()
+        self.n_channels = n_channels
+        self.n_classes = n_classes
+        self.bilinear = bilinear
+
+        self.inc = DoubleConv(n_channels, 32)
+        self.down1 = Down(32, 64)
+        self.down2 = Down(64, 128)
+        self.down3 = Down(128, 256)
+        # factor = 2 if bilinear else 1
+        # self.down4 = Down(512, 1024 // factor)
+        self.up1 = Up(256, 128, bilinear)
+        self.up2 = Up(128, 64, bilinear)
+        self.up3 = Up(64, 32, bilinear)
+        # self.up4 = Up(64, 64, bilinear)
+        self.outc = OutConv(32, n_classes)
+
+    def forward(self, x):
+        x_input = x.clone()
+        x1 = self.inc(x)
+        x2 = self.down1(x1)
+        x3 = self.down2(x2)
+        x4 = self.down3(x3)
+        # x5 = self.down4(x4)
+        x = self.up1(x4, x3)
+        x = self.up2(x, x2)
+        x = self.up3(x, x1)
+        # x = self.up4(x, x1)
+        logits = self.outc(x) + x_input
+        return logits
+
+
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
 

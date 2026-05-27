@@ -18,11 +18,12 @@ def extract_amp_phase(z):
 
 
 class AmpPhsDataset(Dataset):
-    """加载预裁剪的振幅-相位配对 npy 文件."""
+    """加载预裁剪的振幅-相位配对 npy 文件，支持随机旋转/翻转增强。"""
 
-    def __init__(self, root, split="train"):
+    def __init__(self, root, split="train", augment=False):
         self.amp = np.load(os.path.join(root, split, "amp.npy"))  # (N,1,H,W)
         self.phs = np.load(os.path.join(root, split, "phs.npy"))  # (N,1,H,W)
+        self.augment = augment
 
     def __len__(self):
         return self.amp.shape[0]
@@ -30,7 +31,32 @@ class AmpPhsDataset(Dataset):
     def __getitem__(self, idx):
         x = torch.from_numpy(self.amp[idx]).float()
         y = torch.from_numpy(self.phs[idx]).float()
+
+        if self.augment:
+            x, y = _paired_augment(x, y)
+
         return x, y
+
+
+def _paired_augment(x, y):
+    """对振幅-相位配对做相同的随机旋转和翻转。"""
+    # 随机旋转: 0, 90, 180, 270 度
+    k = torch.randint(0, 4, (1,)).item()
+    if k > 0:
+        x = torch.rot90(x, k, dims=[1, 2])
+        y = torch.rot90(y, k, dims=[1, 2])
+
+    # 随机水平翻转
+    if torch.rand(1).item() > 0.5:
+        x = torch.flip(x, dims=[2])
+        y = torch.flip(y, dims=[2])
+
+    # 随机垂直翻转
+    if torch.rand(1).item() > 0.5:
+        x = torch.flip(x, dims=[1])
+        y = torch.flip(y, dims=[1])
+
+    return x, y
 
 
 def load_gray_as_float(idx, img_dir):
